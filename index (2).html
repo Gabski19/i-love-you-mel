@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Heart Glow</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial;
+  background: radial-gradient(circle, #120018, #000000);
+}
+
+/* unlock button */
+#unlockBtn {
+  padding: 16px 32px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: white;
+  font-weight: bold;
+  z-index: 10;
+}
+
+/* container */
+#container {
+  display: none;
+  position: relative;
+  width: 400px;
+  height: 450px;
+
+  /* smooth intro */
+  opacity: 0;
+  transform: scale(0.8);
+  transition: 1.5s ease;
+}
+
+/* when shown */
+#container.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* center text */
+#centerText {
+  position: absolute;
+  color: #ff0000;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* heart particles */
+.particle {
+  position: absolute;
+  color: #ff2d55;
+  font-size: 14px;
+  text-shadow: 0 0 8px #ff2d55, 0 0 16px #ff2d55;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* background floating particles */
+.bgParticle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 45, 85, 0.7);
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff2d55;
+  animation: floatUp linear infinite;
+  z-index: 0;
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+  20% {opacity: 1;}
+  to {
+    transform: translateY(-20vh);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<button id="unlockBtn">UNLOCK</button>
+
+<div id="container">
+  <div id="centerText">I LOVE YOU</div>
+</div>
+
+<script>
+const container = document.getElementById("container");
+const btn = document.getElementById("unlockBtn");
+
+/* HEART FUNCTION */
+function heart(t) {
+  return {
+    x: 16 * Math.pow(Math.sin(t), 3),
+    y: -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t))
+  };
+}
+
+/* BACKGROUND PARTICLES */
+function createBgParticles() {
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement("div");
+    p.className = "bgParticle";
+
+    p.style.left = Math.random() * window.innerWidth + "px";
+    p.style.animationDuration = (3 + Math.random() * 5) + "s";
+    p.style.animationDelay = Math.random() * 5 + "s";
+
+    document.body.appendChild(p);
+  }
+}
+
+/* HEART PARTICLES */
+let particles = [];
+const count = 90;
+
+function createParticles() {
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "particle";
+    div.innerText = "i love you";
+    container.appendChild(div);
+
+    particles.push({
+      el: div,
+      offset: i * (Math.PI * 2 / count)
+    });
+  }
+}
+
+/* ANIMATION */
+function animate() {
+  const time = Date.now() * 0.0002;
+
+  const cx = container.offsetWidth / 2;
+  const cy = container.offsetHeight / 2 - 40;
+  const scale = 16;
+
+  // perfect center lock
+  const text = document.getElementById("centerText");
+  text.style.left = cx + "px";
+  text.style.top = cy + "px";
+  text.style.transform = "translate(-50%, -50%)";
+
+  particles.forEach(p => {
+    const t = time + p.offset;
+    const pos = heart(t);
+
+    p.el.style.left = cx + pos.x * scale - 10 + "px";
+    p.el.style.top  = cy + pos.y * scale - 10 + "px";
+  });
+
+  requestAnimationFrame(animate);
+}
+
+/* CLICK */
+btn.onclick = () => {
+  btn.style.display = "none";
+  container.style.display = "block";
+
+  setTimeout(() => {
+    container.classList.add("show");
+  }, 50);
+
+  createBgParticles();
+  createParticles();
+  animate();
+};
+</script>
+
+</body>
+</html>
